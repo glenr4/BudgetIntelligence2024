@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BudgetIntelligence2024.Persistence;
+namespace BudgetIntelligence2024.Persistence.DBContext;
 
-public partial class TransactionList
+public partial class TransactionStaging
 {
     public int TransactionId { get; set; }
 
@@ -21,13 +21,7 @@ public partial class TransactionList
 
     public int AccountId { get; set; }
 
-    public int ImportOrder { get; set; }
+    public virtual Account Account { get; set; } = null!;
 
-    public int? CategoryId { get; set; }
-
-    public bool IsDuplicate { get; set; }
-
-    public int? SplitNo { get; set; }
-
-    public bool? IsSplitOrigin { get; set; }
+    public virtual User User { get; set; } = null!;
 }

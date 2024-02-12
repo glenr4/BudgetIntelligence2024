@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace BudgetIntelligence2024.Persistence;
+namespace BudgetIntelligence2024.Persistence.DBContext;
 
 public partial class BudgetIntelligenceContext : DbContext
 {
