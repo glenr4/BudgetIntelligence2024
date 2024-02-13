@@ -7,7 +7,7 @@ using System.Data;
 
 namespace BudgetIntelligence2024.Persistence.StoredProcedures
 {
-    internal class SpAddDistinctToTransactions : IAddDistinctToTransactions
+    public class SpAddDistinctToTransactions : IAddDistinctToTransactions
     {
         private readonly string _name = "[dbo].[sp_AddDistinctToTransactions]";
         private readonly string _userIdParam = "UserId";
@@ -22,7 +22,7 @@ namespace BudgetIntelligence2024.Persistence.StoredProcedures
             //_logger = logger;
         }
 
-        public void Create(MigrationBuilder migrationBuilder)
+        internal void Create(MigrationBuilder migrationBuilder)
         {
             var sp = $@"-- Inserts all new records from TransactionStaging to Transaction for a User
 -- ie if it already exists in Transaction table then it will be ignored
@@ -85,7 +85,7 @@ GO
             migrationBuilder.Sql(sp);
         }
 
-        public void Drop(MigrationBuilder migrationBuilder)
+        internal void Drop(MigrationBuilder migrationBuilder)
         {
             var sp = $@"DROP PROCEDURE {_name};
 GO";

@@ -3,7 +3,7 @@ using BudgetIntelligence2024.Persistence.StoredProcedures;
 
 namespace BudgetIntelligence2024.Persistence;
 
-internal class SqlTransactionStore : ITransactionStore
+public class SqlTransactionStore : ITransactionStore
 {
     private readonly BudgetIntelligenceDbContext _ctx;
     private readonly IAddDistinctToTransactions _addDistinctToTransactions;
