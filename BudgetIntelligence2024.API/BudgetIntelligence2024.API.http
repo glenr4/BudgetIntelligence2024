@@ -1,11 +1,7 @@
 @BudgetIntelligence2024.API_HostAddress = http://localhost:5011
 
-GET {{BudgetIntelligence2024.API_HostAddress}}/todos/
-Accept: application/json
+GET {{BudgetIntelligence2024.API_HostAddress}}/ping/
+Accept: text/plain
 
 ###
 
-GET {{BudgetIntelligence2024.API_HostAddress}}/todos/1
-Accept: application/json
-
-###
