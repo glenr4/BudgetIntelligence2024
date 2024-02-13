@@ -21,6 +21,7 @@ public class TransactionImporterNAB : ITransactionImporter
     {
         string line = "";
         int lineCount = 0;
+        List<ImportedTransactionDto> importedTransactions = new();
 
         //Logger.Debug(String.Format("ImportCSV: Importing {0} for userId: {1}, accountId: {2}", fileName, userId, accountId));
 
@@ -57,10 +58,10 @@ public class TransactionImporterNAB : ITransactionImporter
                         }
 
                         // Array order is specific to NAB bank files
-                        this.Context.TransactionStagings.Add(
-                                    new TransactionStaging()
+                        importedTransactions.Add(
+                                    new ImportedTransactionDto()
                                     {
-                                        Date = Convert.ToDateTime(data[0]),
+                                        Date = DateOnly.Parse(data[0]),
                                         Amount = Convert.ToDecimal(data[1]),
                                         Type = data[4],
                                         Description = data[5],
@@ -72,31 +73,34 @@ public class TransactionImporterNAB : ITransactionImporter
                     }
                     else
                     {
-                        Logger.Debug(String.Format("ImportCSV: this line was not in the correct format: {0}", line));
+                        //Logger.Debug(String.Format("ImportCSV: this line was not in the correct format: {0}", line));
                     }
 
                     lineCount++;
                 }
             }
+
+            return lineCount;
+
             // Save
-            this.Context.SaveChanges();
+            //this.Context.SaveChanges();
 
-            // Execute stored procedure to copy distinct entries added above to the staging table to the actual Transaction table
-            //TODO: change staging table to a temporary table created by the stored procedure to avoid contention.
-            //TODO: how do we avoid contention on the Transaction table, should there be one per user?
-            ObjectParameter rowCount = new ObjectParameter("RowCount", typeof(int));
-            this.Context.AddDistinctToTransactions(rowCount);   // TODO: need to prefix this stored procedure with "sp_"
+            //// Execute stored procedure to copy distinct entries added above to the staging table to the actual Transaction table
+            ////TODO: change staging table to a temporary table created by the stored procedure to avoid contention.
+            ////TODO: how do we avoid contention on the Transaction table, should there be one per user?
+            //ObjectParameter rowCount = new ObjectParameter("RowCount", typeof(int));
+            //this.Context.AddDistinctToTransactions(rowCount);   // TODO: need to prefix this stored procedure with "sp_"
 
-            Logger.Debug(String.Format("ImportCSV: contains {0} transactions, {1} were new", lineCount, Convert.ToString(rowCount.Value)));
+            //Logger.Debug(String.Format("ImportCSV: contains {0} transactions, {1} were new", lineCount, Convert.ToString(rowCount.Value)));
 
-            return Convert.ToInt32(rowCount.Value);
+            //return Convert.ToInt32(rowCount.Value);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            string message = String.Format("ImportCSV: exception: {0}; lineCount: {1} line: {2}", e.Message, lineCount, line);
-            Logger.Debug(message);
+            string message = String.Format("ImportCSV: exception: {0}; lineCount: {1} line: {2}", ex.Message, lineCount, line);
+            //Logger.Debug(message);
 
-            throw new Exception(message);
+            throw new Exception(message, ex);
         }
     }
 }

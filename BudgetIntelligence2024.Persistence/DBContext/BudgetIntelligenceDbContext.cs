@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetIntelligence2024.Persistence.DBContext;
 
-public partial class BudgetIntelligenceContext : DbContext
+public partial class BudgetIntelligenceDbContext : DbContext
 {
-    public BudgetIntelligenceContext()
+    public BudgetIntelligenceDbContext()
     {
     }
 
-    public BudgetIntelligenceContext(DbContextOptions<BudgetIntelligenceContext> options)
+    public BudgetIntelligenceDbContext(DbContextOptions<BudgetIntelligenceDbContext> options)
         : base(options)
     {
     }

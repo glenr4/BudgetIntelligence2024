@@ -1,4 +1,5 @@
-﻿using BudgetIntelligence2024.Application;
+﻿using BudgetIntelligence2024.API.Auth;
+using BudgetIntelligence2024.Application;
 using FastEndpoints;
 
 namespace BudgetIntelligence2024.API.TransactionImporter
@@ -6,10 +7,12 @@ namespace BudgetIntelligence2024.API.TransactionImporter
     public class TransactionImporterEndpoint : Endpoint<TransactionImporterRequest>
     {
         private readonly ITransactionImporter _transactionImporter;
+        private readonly IUserContext _userContext;
 
-        public TransactionImporterEndpoint(ITransactionImporter transactionImporter)
+        public TransactionImporterEndpoint(ITransactionImporter transactionImporter, IUserContext userContext)
         {
             _transactionImporter = transactionImporter;
+            _userContext = userContext;
         }
 
         public override void Configure()
@@ -20,7 +23,12 @@ namespace BudgetIntelligence2024.API.TransactionImporter
 
         public override Task HandleAsync(TransactionImporterRequest req, CancellationToken ct)
         {
-            return base.HandleAsync(req, ct);
+            using (var file = req.File.OpenReadStream())
+            {
+                _transactionImporter.ImportCSV(file, _userContext.UserId, req.AccountId);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

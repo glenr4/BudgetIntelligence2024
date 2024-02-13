@@ -2,7 +2,7 @@
 {
     public class TransactionImporterRequest
     {
-        public Guid AccountId { get; set; }
+        public int AccountId { get; set; }
         public IFormFile File { get; set; }
     }
 }
