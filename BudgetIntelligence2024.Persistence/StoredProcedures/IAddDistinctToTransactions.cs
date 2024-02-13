@@ -2,5 +2,5 @@
 
 public interface IAddDistinctToTransactions
 {
-    Task<int> Execute(int userId);
+    Task<int> Execute();
 }

@@ -2,7 +2,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System;
 using System.Data;
 
 namespace BudgetIntelligence2024.Persistence.StoredProcedures
@@ -10,7 +9,6 @@ namespace BudgetIntelligence2024.Persistence.StoredProcedures
     public class SpAddDistinctToTransactions : IAddDistinctToTransactions
     {
         private readonly string _name = "[dbo].[sp_AddDistinctToTransactions]";
-        private readonly string _userIdParam = "UserId";
         private readonly string _rowCountOutputParam = "RowCount";
 
         private readonly BudgetIntelligenceDbContext _ctx;
@@ -24,12 +22,11 @@ namespace BudgetIntelligence2024.Persistence.StoredProcedures
 
         internal void Create(MigrationBuilder migrationBuilder)
         {
-            var sp = $@"-- Inserts all new records from TransactionStaging to Transaction for a User
+            var sp = $@"-- Inserts all new records from TransactionStaging to Transaction
 -- ie if it already exists in Transaction table then it will be ignored
 -- Used to maintain the data integrity of the Transaction table
 
 CREATE PROCEDURE {_name}
-	@{_userIdParam} uniqueidentifier,
 	@{_rowCountOutputParam} int Output	-- returns the number of rows inserted
 AS
 BEGIN
@@ -93,19 +90,18 @@ GO";
             migrationBuilder.Sql(sp);
         }
 
-        public async Task<int> Execute(int userId)
+        public async Task<int> Execute()
         {
             try
             {
                 int rowCount = 0;
-                var userIdParam = new SqlParameter(_userIdParam, userId);
 
                 var rowCountParam = new SqlParameter();
                 rowCountParam.ParameterName = _rowCountOutputParam;
                 rowCountParam.SqlDbType = SqlDbType.Int;
                 rowCountParam.Direction = ParameterDirection.Output;
 
-                await _ctx.Database.ExecuteSqlRawAsync("EXEC " + _name + " @UserId, @RowCount output", new[] { userIdParam, rowCountParam });
+                await _ctx.Database.ExecuteSqlRawAsync("EXEC " + _name + " @RowCount output", new[] { rowCountParam });
                 rowCount = Convert.ToInt32(rowCountParam.Value);
 
                 //_logger.Information($"{nameof(SpAddDistinctToTransactions)}: {rowCount} unique transactions added");

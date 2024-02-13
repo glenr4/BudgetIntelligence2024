@@ -22,6 +22,6 @@ public class SqlTransactionStore : ITransactionStore
 
         await _ctx.SaveChangesAsync();
 
-        return await _addDistinctToTransactions.Execute(userId);
+        return await _addDistinctToTransactions.Execute();
     }
 }
