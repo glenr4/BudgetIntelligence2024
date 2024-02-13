@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BudgetIntelligence2024.Persistence.DBContext;
+﻿namespace BudgetIntelligence2024.Persistence.DBContext;
 
 public partial class TransactionStaging
 {

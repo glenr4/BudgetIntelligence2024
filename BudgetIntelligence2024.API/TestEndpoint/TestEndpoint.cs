@@ -16,7 +16,7 @@ public class TestEndpoint : Endpoint<TestRequest, TestResponse>
         // This sends the response
         Response = new TestResponse
         {
-            Resp = "the response"
+            Resp = req.Test
         };
 
         return Task.CompletedTask;
