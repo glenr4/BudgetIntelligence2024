@@ -17,8 +17,10 @@ namespace BudgetIntelligence2024.API.TransactionImporter
 
         public override void Configure()
         {
-            Post("import/{accountId}");
+            Post("import-transactions/{accountId}");
             AllowFileUploads();
+            
+            AllowAnonymous();   //TODO: implement auth
         }
 
         public override Task HandleAsync(TransactionImporterRequest req, CancellationToken ct)
