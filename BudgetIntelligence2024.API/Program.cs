@@ -5,19 +5,33 @@ using FastEndpoints;
 using Mapster;
 using Serilog;
 
-var builder = WebApplication.CreateSlimBuilder(args);
 
-AddSerilog(builder);
+AddSerilog();
 
-AddServices(builder);
+try
+{
+    var builder = WebApplication.CreateSlimBuilder(args);
 
-var app = builder.Build();
+    builder.Host.UseSerilog();
 
-AddEndpoints(app);
+    AddServices(builder);
 
-app.Run();
+    var app = builder.Build();
 
-void AddSerilog(WebApplicationBuilder builder)
+    AddEndpoints(app);
+
+    app.Run();
+}
+catch(Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+void AddSerilog()
 {
     using var log = 
         new LoggerConfiguration()
@@ -27,8 +41,6 @@ void AddSerilog(WebApplicationBuilder builder)
             .CreateLogger();
     
     Log.Logger = log;
-
-    builder.Host.UseSerilog();
 }
 
 void AddServices(WebApplicationBuilder builder)

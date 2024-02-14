@@ -1,15 +1,29 @@
-﻿namespace BudgetIntelligence2024.Application;
+﻿using Microsoft.Extensions.Logging;
+
+namespace BudgetIntelligence2024.Application;
 
 public class TransactionParserNAB : ITransactionParser
 {
+    private readonly ILogger _logger;
+
+    public TransactionParserNAB(ILogger<TransactionParserNAB> logger)
+    {
+        _logger = logger;
+    }
+
     //TODO: data validation, how do we know if we have received garbage? Maybe the wrong file was selected?
     public IEnumerable<ImportedTransactionDto> ParseCSV(Stream file, int userId, int accountId)
     {
+        // TODO
+        string fileName = "How can we get the file name?";
+
+
+
         string line = "";
         int lineCount = 0;
         List<ImportedTransactionDto> transactions = new();
 
-        //Logger.Debug(String.Format("ImportCSV: Importing {0} for userId: {1}, accountId: {2}", fileName, userId, accountId));
+        _logger.LogDebug($"'{nameof(TransactionParserNAB)}': Importing {fileName} for userId: {userId}, accountId: {accountId}");
 
         try
         {
@@ -35,11 +49,10 @@ public class TransactionParserNAB : ITransactionParser
                         continue;
                     }
 
-                    // Array order is specific to NAB bank files
                     transactions.Add(
                         new ImportedTransactionDto()
                         {
-                            Date = DateOnly.Parse(data[0]), // new CultureInfo("en-AU"), style: DateTimeStyles.AssumeLocal),
+                            Date = DateOnly.Parse(data[0]),
                             Amount = Convert.ToDecimal(data[1]),
                             Type = data[4],
                             Description = data[5],
@@ -57,15 +70,19 @@ public class TransactionParserNAB : ITransactionParser
         }
         catch (Exception ex)
         {
-            string message = String.Format("ImportCSV: exception: {0}; lineCount: {1} line: {2}", ex.Message, lineCount, line);
-            //Logger.Debug(message);
+            string message = $"'{nameof(TransactionParserNAB)}': exception: {ex.Message}; lineCount: {lineCount} line: {line}";
+            _logger.LogDebug(message);
 
             throw new Exception(message, ex);
         }
     }
 
+    /// <summary>
+    /// Note: this logs sensitive information
+    /// </summary>
+    /// <param name="line"></param>
     private void LogFormatError(string line)
     {
-        //Logger.Debug(String.Format("ImportCSV: this line was not in the correct format: {0}", line));
+        _logger.LogDebug($"'{nameof(TransactionParserNAB)}': this line was not in the correct format: {line}");
     }
 }
