@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BudgetIntelligence2024.Domain\BudgetIntelligence2024.Domain.csproj" />
     <ProjectReference Include="..\BudgetIntelligence2024.Persistence\BudgetIntelligence2024.Persistence.csproj" />
   </ItemGroup>
