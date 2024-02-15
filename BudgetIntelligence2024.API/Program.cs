@@ -34,14 +34,17 @@ finally
 
 void AddSerilog()
 {
+    var outputTemplate = "[{Timestamp:HH:mm:ss.fff} {Level:u3} {TraceId}] {Message:lj}{NewLine}{Exception}";
+
     using var log = 
         new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
-            .WriteTo.File("logs/BudgetIntelligence2024.log", rollingInterval: RollingInterval.Day)
+            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information, outputTemplate: outputTemplate)
+            .WriteTo.File("logs/BudgetIntelligence2024.log", rollingInterval: RollingInterval.Day, outputTemplate: outputTemplate)
             .CreateLogger();
     
     Log.Logger = log;
+
 }
 
 void AddServices(WebApplicationBuilder builder)
