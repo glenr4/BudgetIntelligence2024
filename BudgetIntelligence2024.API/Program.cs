@@ -1,10 +1,11 @@
+using BudgetIntelligence2024.API;
 using BudgetIntelligence2024.API.Auth;
 using BudgetIntelligence2024.Application;
 using BudgetIntelligence2024.Persistence.DependencyInjection;
 using FastEndpoints;
 using Mapster;
 using Serilog;
-using Serilog.Events;
+using Serilog.Filters;
 
 
 AddSerilog();
@@ -21,6 +22,8 @@ try
 
     AddEndpoints(app);
 
+    app.UseCustomExceptionHandler();
+
     app.Run();
 }
 catch(Exception ex)
@@ -34,17 +37,20 @@ finally
 
 void AddSerilog()
 {
-    var outputTemplate = "[{Timestamp:HH:mm:ss.fff} {Level:u3} {TraceId}] {Message:lj}{NewLine}{Exception}";
+    var configuration = 
+        new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
+            .Build();
 
-    using var log = 
+    var logger = 
         new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information, outputTemplate: outputTemplate)
-            .WriteTo.File("logs/BudgetIntelligence2024.log", rollingInterval: RollingInterval.Day, outputTemplate: outputTemplate)
+            .Filter.ByExcluding(Matching.FromSource<Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware>()) // Could not get this to work in appsettings
+            .ReadFrom.Configuration(configuration)
             .CreateLogger();
-    
-    Log.Logger = log;
 
+    Log.Logger = logger;
 }
 
 void AddServices(WebApplicationBuilder builder)

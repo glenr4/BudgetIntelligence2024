@@ -14,17 +14,19 @@ public class TransactionParserNAB : ITransactionParser
     //TODO: data validation, how do we know if we have received garbage? Maybe the wrong file was selected?
     public IEnumerable<ImportedTransactionDto> ParseCSV(string fileName, Stream file, int userId, int accountId)
     {
-        string line = "";
         int lineCount = 0;
-        List<ImportedTransactionDto> transactions = new();
         
-        _logger.LogInformation($"'{nameof(TransactionParserNAB)}': Importing {fileName} for userId: {userId}, accountId: {accountId}");
-
         try
         {
+            List<ImportedTransactionDto> transactions = new();
+        
+            _logger.LogInformation($"'{nameof(TransactionParserNAB)}': Importing '{fileName}' for userId: {userId}, accountId: {accountId}");
+
             using (StreamReader sr = new StreamReader(file))
             {
                 string[] data;
+                string line = "";
+
                 while ((line = sr.ReadLine()) != null)
                 {
                     string[] separator = new string[] { "," };
@@ -60,7 +62,7 @@ public class TransactionParserNAB : ITransactionParser
                     lineCount++;
                 }
             }
-
+            throw new Exception("testing");
 
             return transactions;
         }
@@ -68,9 +70,9 @@ public class TransactionParserNAB : ITransactionParser
         {
             string message = $"'{nameof(TransactionParserNAB)}': could not parse line: {lineCount}";
 
-            _logger.LogError(message);
+            //_logger.LogError(message);
 
-            throw;
+            throw new CSVParseException(message, ex);
         }
     }
 
