@@ -12,12 +12,17 @@ namespace BudgetIntelligence2024.API.TransactionImporter
         private readonly ITransactionParser _transactionParser;
         private readonly ITransactionStore _transactionStore;
         private readonly IUserContext _userContext;
+        private readonly ILogger<TransactionImporterEndpoint> _logger;
 
-        public TransactionImporterEndpoint(ITransactionParser transactionParser, ITransactionStore transactionStore, IUserContext userContext)
+        public TransactionImporterEndpoint(ITransactionParser transactionParser,
+                                           ITransactionStore transactionStore,
+                                           IUserContext userContext,
+                                           ILogger<TransactionImporterEndpoint> logger)
         {
             _transactionParser = transactionParser;
             _transactionStore = transactionStore;
             _userContext = userContext;
+            _logger = logger;
         }
 
         public override void Configure()
@@ -34,7 +39,9 @@ namespace BudgetIntelligence2024.API.TransactionImporter
             {
                 var transactions = _transactionParser.ParseCSV(req.File.FileName, fileStream, _userContext.UserId, req.AccountId);
             
-                await _transactionStore.AddAsync(transactions.Adapt<IEnumerable<TransactionStaging>>(), _userContext.UserId);
+                var lineCount = await _transactionStore.AddAsync(transactions.Adapt<IEnumerable<TransactionStaging>>(), _userContext.UserId);
+
+                _logger.LogInformation($"Imported {lineCount} transactions out of {transactions.Count()}");
             }
         }
     }

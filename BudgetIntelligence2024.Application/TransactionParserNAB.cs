@@ -62,7 +62,6 @@ public class TransactionParserNAB : ITransactionParser
                     lineCount++;
                 }
             }
-            throw new Exception("testing");
 
             return transactions;
         }
