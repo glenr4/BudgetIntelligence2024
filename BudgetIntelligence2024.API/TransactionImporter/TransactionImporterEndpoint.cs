@@ -30,9 +30,9 @@ namespace BudgetIntelligence2024.API.TransactionImporter
 
         public async override Task HandleAsync(TransactionImporterRequest req, CancellationToken ct)
         {
-            using (var file = req.File.OpenReadStream())
+            using (var fileStream = req.File.OpenReadStream())
             {
-                var transactions = _transactionParser.ParseCSV(file, _userContext.UserId, req.AccountId);
+                var transactions = _transactionParser.ParseCSV(req.File.FileName, fileStream, _userContext.UserId, req.AccountId);
             
                 await _transactionStore.AddAsync(transactions.Adapt<IEnumerable<TransactionStaging>>(), _userContext.UserId);
             }

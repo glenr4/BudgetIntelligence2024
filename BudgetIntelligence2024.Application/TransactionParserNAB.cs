@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace BudgetIntelligence2024.Application;
 
@@ -12,18 +12,13 @@ public class TransactionParserNAB : ITransactionParser
     }
 
     //TODO: data validation, how do we know if we have received garbage? Maybe the wrong file was selected?
-    public IEnumerable<ImportedTransactionDto> ParseCSV(Stream file, int userId, int accountId)
+    public IEnumerable<ImportedTransactionDto> ParseCSV(string fileName, Stream file, int userId, int accountId)
     {
-        // TODO
-        string fileName = "How can we get the file name?";
-
-
-
         string line = "";
         int lineCount = 0;
         List<ImportedTransactionDto> transactions = new();
-
-        _logger.LogDebug($"'{nameof(TransactionParserNAB)}': Importing {fileName} for userId: {userId}, accountId: {accountId}");
+        
+        _logger.LogInformation($"'{nameof(TransactionParserNAB)}': Importing {fileName} for userId: {userId}, accountId: {accountId}");
 
         try
         {
@@ -37,14 +32,14 @@ public class TransactionParserNAB : ITransactionParser
 
                     if (data.Length != 9)
                     {
-                        LogFormatError(line);
+                        LogFormatError(lineCount);
 
                         continue;
                     }
 
                     if (data[0] == "Date")
                     {
-                        LogFormatError(line);
+                        LogFormatError(lineCount);
 
                         continue;
                     }
@@ -66,23 +61,21 @@ public class TransactionParserNAB : ITransactionParser
                 }
             }
 
+
             return transactions;
         }
         catch (Exception ex)
         {
-            string message = $"'{nameof(TransactionParserNAB)}': exception: {ex.Message}; lineCount: {lineCount} line: {line}";
-            _logger.LogDebug(message);
+            string message = $"'{nameof(TransactionParserNAB)}': could not parse line: {lineCount}";
 
-            throw new Exception(message, ex);
+            _logger.LogError(message);
+
+            throw;
         }
     }
 
-    /// <summary>
-    /// Note: this logs sensitive information
-    /// </summary>
-    /// <param name="line"></param>
-    private void LogFormatError(string line)
+    private void LogFormatError(int lineCount)
     {
-        _logger.LogDebug($"'{nameof(TransactionParserNAB)}': this line was not in the correct format: {line}");
+        _logger.LogWarning($"'{nameof(TransactionParserNAB)}': line {lineCount} was not in the correct format");
     }
 }
