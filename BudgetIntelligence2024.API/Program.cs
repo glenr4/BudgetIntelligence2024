@@ -46,7 +46,9 @@ void AddSerilog()
 
     var logger = 
         new LoggerConfiguration()
-            .Filter.ByExcluding(Matching.FromSource<Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware>()) // Could not get this to work in appsettings
+            // UseCustomExceptionHandler logs unhandled exceptions, so don't need the default middleware
+            // Could not get this filter to work in appsettings    
+            .Filter.ByExcluding(Matching.FromSource<Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware>())
             .ReadFrom.Configuration(configuration)
             .CreateLogger();
 

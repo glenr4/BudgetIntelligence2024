@@ -1,5 +1,7 @@
-﻿using FastEndpoints;
+﻿using BudgetIntelligence2024.Application;
+using FastEndpoints;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace BudgetIntelligence2024.API;
@@ -39,6 +41,7 @@ public static class UnhandledExceptionsExtensions
                         if (exHandlerFeature is not null)
                         {
                             logger ??= ctx.Resolve<ILogger<ExceptionHandler>>();
+
                             var route = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
                             var exceptionType = exHandlerFeature.Error.GetType().Name;
                             var reason = exHandlerFeature.Error.Message;
@@ -58,10 +61,11 @@ public static class UnhandledExceptionsExtensions
                                      """);
                             }
 
-                            ctx.Response.StatusCode = (int)HttpStatusCode.InsufficientStorage;  //.InternalServerError;
+                            ctx.Response.StatusCode = GetStatusCode(exceptionType);
                             ctx.Response.ContentType = "application/problem+json";
                             
                             await ctx.Response.WriteAsJsonAsync(
+                                // Change this 
                                 new InternalErrorResponse
                                 {
                                     Status = "Internal Server Error!",
@@ -74,5 +78,17 @@ public static class UnhandledExceptionsExtensions
             });
 
         return app;
+    }
+
+    private static int GetStatusCode(string exceptionType)
+    {
+        return exceptionType switch
+        {
+            nameof(DbUpdateException) => (int)HttpStatusCode.BadRequest,
+            nameof(DbUpdateConcurrencyException) => (int)HttpStatusCode.BadRequest,
+            nameof(CSVParseException) => (int)HttpStatusCode.BadRequest,
+
+            _ => (int)HttpStatusCode.InternalServerError
+        };
     }
 }
