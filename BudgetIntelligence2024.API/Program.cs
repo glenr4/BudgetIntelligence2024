@@ -15,14 +15,14 @@ try
     var builder = WebApplication.CreateSlimBuilder(args);
 
     builder.Host.UseSerilog();
-
+    
     AddServices(builder);
 
     var app = builder.Build();
 
     AddEndpoints(app);
 
-    app.UseCustomExceptionHandler();
+    app.UseCustomExceptionHandler(env: builder.Environment);
 
     app.Run();
 }

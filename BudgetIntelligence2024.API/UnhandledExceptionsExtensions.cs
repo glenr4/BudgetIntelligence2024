@@ -25,10 +25,11 @@ public static class UnhandledExceptionsExtensions
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
     /// <param name="useGenericReason">set to true if you don't want to expose the actual exception reason in the json response sent to the client</param>
-    public static IApplicationBuilder UseCustomExceptionHandler(this IApplicationBuilder app,
-                                                                 ILogger? logger = null,
-                                                                 bool logStructuredException = false,
-                                                                 bool useGenericReason = false)
+    public static IApplicationBuilder UseCustomExceptionHandler(
+        this IApplicationBuilder app,
+        IWebHostEnvironment env,
+        ILogger? logger = null,
+        bool enableLogging = true)
     {
         app.UseExceptionHandler(
             errApp =>
@@ -46,9 +47,7 @@ public static class UnhandledExceptionsExtensions
                             var exceptionType = exHandlerFeature.Error.GetType().Name;
                             var reason = exHandlerFeature.Error.Message;
 
-                            if (logStructuredException)
-                                logger.LogError("{@route}{@exceptionType}{@reason}{@exception}", route, exceptionType, reason, exHandlerFeature.Error);
-                            else
+                            if(enableLogging)
                             {
                                 logger.LogError(
                                     $"""
@@ -61,23 +60,25 @@ public static class UnhandledExceptionsExtensions
                                      """);
                             }
 
-                            ctx.Response.StatusCode = GetStatusCode(exceptionType);
+                            var statusCode = GetStatusCode(exceptionType);
+
+                            ctx.Response.StatusCode = statusCode;
                             ctx.Response.ContentType = "application/problem+json";
-                            
-                            await ctx.Response.WriteAsJsonAsync(
-                                // Change this 
-                                new InternalErrorResponse
+
+                            if (env.IsDevelopment())
+                            {
+                                await ctx.Response.WriteAsJsonAsync(new ErrorResponse
                                 {
-                                    Status = "Internal Server Error!",
-                                    Code = ctx.Response.StatusCode,
-                                    Reason = useGenericReason ? "An unexpected error has occurred." : reason,
-                                    Note = "See application log for stack trace."
+                                    Exception = exHandlerFeature.Error.Message,
+                                    StackTrace = exHandlerFeature.Error.StackTrace,
+                                    StatusCode = statusCode
                                 });
+                            }
                         }
                     });
             });
 
-        return app;
+        return app; 
     }
 
     private static int GetStatusCode(string exceptionType)
@@ -90,5 +91,12 @@ public static class UnhandledExceptionsExtensions
 
             _ => (int)HttpStatusCode.InternalServerError
         };
+    }
+
+    public class ErrorResponse
+    {
+        public string? Exception { get; set; }
+        public string? StackTrace { get; set; }
+        public int StatusCode { get; set; }
     }
 }
