@@ -4,6 +4,7 @@ using BudgetIntelligence2024.Persistence.DependencyInjection;
 using FastEndpoints;
 using Mapster;
 using Serilog;
+using Serilog.Events;
 
 
 AddSerilog();
@@ -36,7 +37,7 @@ void AddSerilog()
     using var log = 
         new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console()
+            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
             .WriteTo.File("logs/BudgetIntelligence2024.log", rollingInterval: RollingInterval.Day)
             .CreateLogger();
     
