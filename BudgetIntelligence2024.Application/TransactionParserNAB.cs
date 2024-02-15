@@ -20,7 +20,7 @@ public class TransactionParserNAB : ITransactionParser
         {
             List<ImportedTransactionDto> transactions = new();
         
-            _logger.LogInformation($"'{nameof(TransactionParserNAB)}': Importing '{fileName}' for userId: {userId}, accountId: {accountId}");
+            _logger.LogInformation($"Importing '{fileName}' for userId: {userId}, accountId: {accountId}");
 
             using (StreamReader sr = new StreamReader(file))
             {
@@ -67,9 +67,7 @@ public class TransactionParserNAB : ITransactionParser
         }
         catch (Exception ex)
         {
-            string message = $"'{nameof(TransactionParserNAB)}': could not parse line: {lineCount}";
-
-            //_logger.LogError(message);
+            string message = $"Could not parse line: {lineCount}";
 
             throw new CSVParseException(message, ex);
         }
@@ -77,6 +75,6 @@ public class TransactionParserNAB : ITransactionParser
 
     private void LogFormatError(int lineCount)
     {
-        _logger.LogWarning($"'{nameof(TransactionParserNAB)}': line {lineCount} was not in the correct format");
+        _logger.LogWarning($"Line {lineCount} was not in the correct format");
     }
 }
