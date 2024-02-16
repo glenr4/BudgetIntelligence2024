@@ -16,8 +16,6 @@ public class SqlTransactionStore : ITransactionStore
 
     public async Task<int> AddAsync(IEnumerable<TransactionStaging> transactions, int userId)
     {
-        //_logger.Information($"{nameof(SqlTransactionStagingStore)} adding transactions");
-
         _ctx.TransactionStagings.AddRange(transactions);
 
         await _ctx.SaveChangesAsync();

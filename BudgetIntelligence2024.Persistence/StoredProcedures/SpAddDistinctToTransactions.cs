@@ -92,28 +92,17 @@ GO";
 
         public async Task<int> Execute()
         {
-            try
-            {
-                int rowCount = 0;
+            int rowCount = 0;
 
-                var rowCountParam = new SqlParameter();
-                rowCountParam.ParameterName = _rowCountOutputParam;
-                rowCountParam.SqlDbType = SqlDbType.Int;
-                rowCountParam.Direction = ParameterDirection.Output;
+            var rowCountParam = new SqlParameter();
+            rowCountParam.ParameterName = _rowCountOutputParam;
+            rowCountParam.SqlDbType = SqlDbType.Int;
+            rowCountParam.Direction = ParameterDirection.Output;
 
-                await _ctx.Database.ExecuteSqlRawAsync("EXEC " + _name + " @RowCount output", new[] { rowCountParam });
-                rowCount = Convert.ToInt32(rowCountParam.Value);
+            await _ctx.Database.ExecuteSqlRawAsync("EXEC " + _name + " @RowCount output", new[] { rowCountParam });
+            rowCount = Convert.ToInt32(rowCountParam.Value);
 
-                //_logger.Information($"{nameof(SpAddDistinctToTransactions)}: {rowCount} unique transactions added");
-
-                return rowCount;
-            }
-            catch (Exception ex)
-            {
-                //_logger.Error(ex, $"{nameof(SpAddDistinctToTransactions)} adding transactions failed");
-
-                return -1;
-            }
+            return rowCount;
         }
     }
 }
